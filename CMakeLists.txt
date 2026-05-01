@@ -24,9 +24,7 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/sim_control_testing.py
   scripts/arm_fk.py
-  scripts/arm_fk_hardcoded.py
   scripts/arm_ik.py
-  scripts/arm_ik_hardcoded.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
