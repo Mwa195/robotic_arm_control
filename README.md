@@ -79,7 +79,6 @@ arm_training/
 ├── launch/
 │   ├── gazebo.launch.py          # Gazebo Harmonic simulation launch
 │   ├── display.launch            # RViz2 visualization launch
-│   └── gazebo.launch             # Legacy Gazebo launch (reference)
 ├── meshes/
 │   ├── base_Link.STL
 │   ├── link1_Link.STL
