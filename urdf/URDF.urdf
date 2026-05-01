@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot
+  name="URDF">
+
+  <!-- Fixed world anchor -->
+  <link name="world"/>
+  <joint name="world_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="rover_link"/>
+  </joint>
+
+  <link
+    name="rover_link">
+    <inertial>
+      <origin
+        xyz="-1.53707584473793E-33 3.12960622482824E-17 0.0495612813370474"
+        rpy="0 0 0" />
+      <mass
+        value="3.52447425824605" />
+      <inertia
+        ixx="0.053748147207602"
+        ixy="1.17815874515891E-33"
+        ixz="-5.15097616290709E-34"
+        iyy="0.053748147207602"
+        iyz="2.59498526174835E-18"
+        izz="0.0987730229319565" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/rover_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/rover_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="base_Link">
+    <inertial>
+      <origin
+        xyz="0.0046966429585225 0.0152296963336759 0.0665638293575894"
+        rpy="0 0 0" />
+      <mass
+        value="1.23478978303734" />
+      <inertia
+        ixx="0.00467193692227462"
+        ixy="1.19964737132145E-07"
+        ixz="1.49425582052779E-08"
+        iyy="0.00417218772748465"
+        iyz="3.50407634446874E-06"
+        izz="0.00853382575005596" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/base_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/base_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="base_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="rover_link" />
+    <child
+      link="base_Link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14159"
+      upper="3.14159"
+      effort="10.0"
+      velocity="1.0" />
+  </joint>
+  <link
+    name="link1_Link">
+    <inertial>
+      <origin
+        xyz="0.00396820665544839 -0.123748701917041 0.0726858184034952"
+        rpy="0 0 0" />
+      <mass
+        value="0.357727091654715" />
+      <inertia
+        ixx="0.00250889336406051"
+        ixy="-3.77499904498085E-09"
+        ixz="6.65403985953818E-09"
+        iyy="0.00110718896719104"
+        iyz="0.0010410555122776"
+        izz="0.00227041398507663" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/link1_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/link1_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="shoulder_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0.16"
+      rpy="0 0 0" />
+    <parent
+      link="base_Link" />
+    <child
+      link="link1_Link" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="10.0"
+      velocity="1.0" />
+  </joint>
+  <link
+    name="link2_Link">
+    <inertial>
+      <origin
+        xyz="-0.003246438141612 -0.154370097507869 -0.0276615517464144"
+        rpy="0 0 0" />
+      <mass
+        value="0.238900462331021" />
+      <inertia
+        ixx="0.00245443918187896"
+        ixy="-8.14916725571879E-13"
+        ixz="-1.50598234095093E-14"
+        iyy="0.000210000112179241"
+        iyz="-0.000409525133400757"
+        izz="0.00242204355866926" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/link2_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://arm_training/meshes/link2_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="elbow_joint"
+    type="revolute">
+    <origin
+      xyz="0.006 -0.32763 0.19251"
+      rpy="0 0 0" />
+    <parent
+      link="link1_Link" />
+    <child
+      link="link2_Link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-2.094"
+      upper="2.094"
+      effort="5.0"
+      velocity="1.0" />
+  </joint>
+
+   <link
+    name="tip_link"/>
+
+  <joint
+    name="tip_joint" type="fixed">
+    <origin xyz="0 -0.3087 0" rpy="0 0 0"/>
+    <parent link="link2_Link"/>
+    <child link="tip_link"/>
+  </joint>
+  
+  <!-- ros2_control for Gazebo Harmonic -->
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    
+    <joint name="base_joint">
+      <command_interface name="position">
+        <param name="min">-3.14159</param>
+        <param name="max">3.14159</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="shoulder_joint">
+      <command_interface name="position">
+        <param name="min">-1.57</param>
+        <param name="max">1.57</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="elbow_joint">
+      <command_interface name="position">
+        <param name="min">-2.094</param>
+        <param name="max">2.094</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+  
+  <!-- Gazebo Harmonic plugin - controller config path injected by gazebo.launch.py -->
+  <gazebo>
+    <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+      <controller_manager_name>controller_manager</controller_manager_name>
+    </plugin>
+  </gazebo>
+</robot>
