@@ -32,7 +32,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/rover_link.STL" />
+          filename="package://robotic_arm_control/meshes/rover_link.STL" />
       </geometry>
       <material
         name="">
@@ -46,7 +46,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/rover_link.STL" />
+          filename="package://robotic_arm_control/meshes/rover_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -72,7 +72,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/base_Link.STL" />
+          filename="package://robotic_arm_control/meshes/base_Link.STL" />
       </geometry>
       <material
         name="">
@@ -86,7 +86,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/base_Link.STL" />
+          filename="package://robotic_arm_control/meshes/base_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -130,7 +130,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/link1_Link.STL" />
+          filename="package://robotic_arm_control/meshes/link1_Link.STL" />
       </geometry>
       <material
         name="">
@@ -144,7 +144,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/link1_Link.STL" />
+          filename="package://robotic_arm_control/meshes/link1_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -188,7 +188,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/link2_Link.STL" />
+          filename="package://robotic_arm_control/meshes/link2_Link.STL" />
       </geometry>
       <material
         name="">
@@ -202,7 +202,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://arm_training/meshes/link2_Link.STL" />
+          filename="package://robotic_arm_control/meshes/link2_Link.STL" />
       </geometry>
     </collision>
   </link>

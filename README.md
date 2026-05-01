@@ -1,4 +1,4 @@
-# arm_training
+# robotic_arm_control
 
 A ROS 2 package for simulating and controlling a **3-DOF robotic arm** mounted on a rover platform. The package provides a full Gazebo Harmonic simulation environment, forward and inverse kinematics solvers, and trajectory control via `ros2_control`.
 
@@ -27,7 +27,7 @@ A ROS 2 package for simulating and controlling a **3-DOF robotic arm** mounted o
 
 ## Overview
 
-`arm_training` is designed as a learning and development platform for robotic arm kinematics and simulation in ROS 2. It includes:
+`robotic_arm_control` is designed as a learning and development platform for robotic arm kinematics and simulation in ROS 2. It includes:
 
 - A fully described URDF robot model with inertial, visual, and collision properties
 - STL mesh files for all links
@@ -71,7 +71,7 @@ The arm is a **3-DOF revolute chain** mounted on a static rover base:
 ## Package Structure
 
 ```
-arm_training/
+robotic_arm_control/
 ├── config/
 │   ├── arm_controllers.yaml      # ros2_control controller configuration
 │   ├── display.rviz              # RViz2 display configuration
@@ -129,7 +129,7 @@ rclpy
 
    ```bash
    cd ~/ros2_ws/src
-   git clone <your-repo-url> arm_training
+   git clone <your-repo-url> robotic_arm_control
    ```
 
 2. **Install ROS 2 dependencies:**
@@ -142,7 +142,7 @@ rclpy
 3. **Build the package:**
 
    ```bash
-   colcon build --packages-select arm_training
+   colcon build --packages-select robotic_arm_control
    source install/setup.bash
    ```
 
@@ -155,7 +155,7 @@ rclpy
 Launch the robot model with the joint state publisher GUI for interactive joint control:
 
 ```bash
-ros2 launch arm_training display.launch
+ros2 launch robotic_arm_control display.launch
 ```
 
 This starts:
@@ -168,7 +168,7 @@ This starts:
 Start the full Gazebo Harmonic simulation with ros2_control:
 
 ```bash
-ros2 launch arm_training gazebo.launch.py
+ros2 launch robotic_arm_control gazebo.launch.py
 ```
 
 This starts Gazebo, spawns the robot, and brings up both the `joint_state_broadcaster` and `arm_controller`. Controllers are sequenced with appropriate delays to allow the controller manager to initialize fully.
@@ -178,7 +178,7 @@ This starts Gazebo, spawns the robot, and brings up both the `joint_state_broadc
 With the simulation (or any `/joint_states` publisher) running, start the FK node:
 
 ```bash
-ros2 run arm_training arm_fk.py
+ros2 run robotic_arm_control arm_fk.py
 ```
 
 The node subscribes to `/joint_states` and prints formatted end-effector information on every update:
@@ -199,10 +199,10 @@ Move the arm tip to a specific Cartesian position (in the rover frame, metres):
 
 ```bash
 # Elbow-up configuration (default)
-ros2 run arm_training arm_ik.py 0.3 -0.3 0.5
+ros2 run robotic_arm_control arm_ik.py 0.3 -0.3 0.5
 
 # Elbow-down configuration
-ros2 run arm_training arm_ik.py 0.3 -0.3 0.5 False
+ros2 run robotic_arm_control arm_ik.py 0.3 -0.3 0.5 False
 ```
 
 The node will:
@@ -216,7 +216,7 @@ The node will:
 Run a predefined test sequence that moves the arm through several positions and returns it home:
 
 ```bash
-ros2 run arm_training sim_control_testing.py
+ros2 run robotic_arm_control sim_control_testing.py
 ```
 
 The test sequence moves through: home → base rotation (90°) → shoulder tilt (45°) → elbow bend (−57°) → home.

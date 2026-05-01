@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Forward Kinematics for arm_training robot.
+Forward Kinematics for robotic_arm_control robot.
 
 Kinematic chain (from URDF):
   rover_link
@@ -123,7 +123,7 @@ def run_ros2_node():
     Use this to verify L2 against Gazebo's /tf output.
 
     Run:
-        ros2 run arm_training arm_fk.py --ros
+        ros2 run robotic_arm_control arm_fk.py --ros
     Then in another terminal:
         ros2 topic echo /joint_states
         ros2 run tf2_tools view_frames   (to inspect /tf tree)
@@ -176,7 +176,7 @@ def run_standalone():
     These match the positions in sim_control_testing.py so you can cross-check
     against Gazebo's /tf output.
     """
-    print("Forward Kinematics — arm_training")
+    print("Forward Kinematics — robotic_arm_control")
     print(f"L1={L1:.4f}m  L2={L2:.4f}m (ESTIMATE — verify with /tf)")
     print(f"alpha1_structural={math.degrees(ALPHA1_STRUCTURAL):.2f}°")
 
@@ -193,8 +193,8 @@ def run_standalone():
         print_fk_result(t1, t2, t3)
 
     print("\n\nHOW TO VERIFY L2 IN SIMULATION:")
-    print("  1. Launch Gazebo:  ros2 launch arm_training gazebo.launch.py")
-    print("  2. Run test script:  ros2 run arm_training sim_control_testing.py")
+    print("  1. Launch Gazebo:  ros2 launch robotic_arm_control gazebo.launch.py")
+    print("  2. Run test script:  ros2 run robotic_arm_control sim_control_testing.py")
     print("  3. In another terminal:")
     print("     ros2 run tf2_ros tf2_echo rover_link link2_Link")
     print("     Compare the translation with the FK tip output above.")

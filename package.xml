@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>arm_training</name>
+  <name>robotic_arm_control</name>
   <version>0.0.0</version>
   <description>ROS2 package to simulate and control a 3-DOF robotic arm in Gazebo Harmonic</description>
   <maintainer email="mohamedwael200320@gmail.com">mwa</maintainer>

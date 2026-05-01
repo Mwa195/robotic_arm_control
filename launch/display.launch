@@ -14,7 +14,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     
     # Get package directory
-    pkg_name = 'arm_training'
+    pkg_name = 'robotic_arm_control'
     pkg_share = get_package_share_directory(pkg_name)
     
     # Paths to files

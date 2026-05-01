@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Inverse Kinematics for arm_training robot.
+Inverse Kinematics for robotic_arm_control robot.
 
 DERIVATION SUMMARY
 ══════════════════
@@ -60,7 +60,7 @@ import sys
 
 # ─── Import FK (must be in same directory or installed) ───────────────────────
 # If running as a ROS2 node, add the scripts directory to path if needed:
-#   sys.path.insert(0, '/path/to/arm_training/scripts')
+#   sys.path.insert(0, '/path/to/robotic_arm_control/scripts')
 try:
     from arm_fk import fk, L1, L2, ALPHA1_STRUCTURAL, SHOULDER_ORIGIN
 except ImportError:
@@ -264,7 +264,7 @@ def ik(x: float, y: float, z: float,
 
 def run_tests():
     """Test IK by computing FK → IK → FK and comparing positions."""
-    print("Inverse Kinematics — arm_training")
+    print("Inverse Kinematics — robotic_arm_control")
     print(f"L1={L1:.4f}m  L2={L2:.4f}m  alpha1={math.degrees(ALPHA1_STRUCTURAL):.2f}°")
     print()
 
@@ -325,10 +325,10 @@ def run_ros2_node():
     Publishes to /arm_controller/follow_joint_trajectory (action server).
 
     Usage:
-        ros2 run arm_training arm_ik.py --ros -- x y z [elbow_up]
+        ros2 run robotic_arm_control arm_ik.py --ros -- x y z [elbow_up]
     Example:
-        ros2 run arm_training arm_ik.py --ros -- 0.3 -0.3 0.5
-        ros2 run arm_training arm_ik.py --ros -- 0.3 -0.3 0.5 False
+        ros2 run robotic_arm_control arm_ik.py --ros -- 0.3 -0.3 0.5
+        ros2 run robotic_arm_control arm_ik.py --ros -- 0.3 -0.3 0.5 False
     """
     import rclpy
     from rclpy.node import Node

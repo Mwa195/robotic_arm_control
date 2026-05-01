@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Inverse Kinematics for arm_training robot.
+Inverse Kinematics for robotic_arm_control robot.
 
 DERIVATION SUMMARY
 ══════════════════
@@ -379,15 +379,15 @@ class ArmIKNode(Node):
 def main(args=None):
     """
     Usage:
-        ros2 run arm_training arm_ik.py x y z [elbow_up]
+        ros2 run robotic_arm_control arm_ik.py x y z [elbow_up]
     Example:
-        ros2 run arm_training arm_ik.py 0.3 -0.3 0.5
-        ros2 run arm_training arm_ik.py 0.3 -0.3 0.5 False
+        ros2 run robotic_arm_control arm_ik.py 0.3 -0.3 0.5
+        ros2 run robotic_arm_control arm_ik.py 0.3 -0.3 0.5 False
     """
     user_args = rclpy.utilities.remove_ros_args(sys.argv)[1:]
 
     if len(user_args) < 3:
-        print('Incomplete args - Usage: ros2 run arm_training arm_ik.py x y z [elbow_up=True]')
+        print('Incomplete args - Usage: ros2 run robotic_arm_control arm_ik.py x y z [elbow_up=True]')
         sys.exit(1)
 
     x, y, z = float(user_args[0]), float(user_args[1]), float(user_args[2])
