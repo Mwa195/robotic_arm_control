@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: robotic_arm_control
+    relative_path: urdf/URDF.urdf
+  srdf:
+    relative_path: config/URDF.srdf
+  package_settings:
+    author_name: mwa
+    author_email: mohamedwaelc@gmail.com
+    generated_timestamp: 1778001074
