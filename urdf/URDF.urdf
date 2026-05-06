@@ -236,9 +236,14 @@
   </joint>
   
   <!-- ros2_control for Gazebo Harmonic -->
-  <ros2_control name="GazeboSimSystem" type="system">
+  <!-- <ros2_control name="GazeboSimSystem" type="system">
     <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware> -->
+  <!-- ros2_control for Demo in moveit -->
+  <ros2_control name="DemoSimSystem" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
     </hardware>
     
     <joint name="base_joint">
