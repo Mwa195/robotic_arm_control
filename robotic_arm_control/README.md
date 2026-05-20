@@ -107,7 +107,9 @@ The URDF contains plugin declarations for **all three operating modes**. Only on
 |---|---|---|
 | MoveIt demo | `mock_components/GenericSystem` | Planning and visualization only, no physical hardware or Gazebo |
 | Gazebo simulation | `gz_ros2_control/GazeboSimSystem` | Physics simulation in Gazebo Harmonic |
-| Real hardware | `arm_hardware_interface/ArmHardwareInterface` | Actual ESP8266 over USB serial |
+| Real hardware | `arm_hardware_interface/ArmHardwareInterface` | Actual ESP32 over UART serial or Wifi |
+
+--> To switch modes, open urdf/URDF.urdf and replace the <plugin> tag in the <ros2_control> block with the appropriate value from the table above. Only one plugin can be active at a time.
 
 The `<gazebo>` plugin block for `gz_ros2_control` is always present in the URDF and harmless when not in Gazebo mode — Gazebo simply won't be running to load it.
 
@@ -117,8 +119,17 @@ The `<gazebo>` plugin block for `gz_ros2_control` is always present in the URDF 
 <ros2_control name="ArmSystem" type="system">
   <hardware>
     <plugin>arm_hardware_interface/ArmHardwareInterface</plugin>
+    <!-- Transport selection: "serial" or "wifi"
+         Override at launch time:
+           ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=wifi
+           ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=serial -->
+    <param name="transport">serial</param>
+    <!-- Serial transport params -->
     <param name="serial_port">/dev/ttyUSB0</param>
     <param name="baud_rate">115200</param>
+    <!-- WiFi transport params (used when transport=wifi) -->
+    <param name="esp_ip">192.168.1.105</param>
+    <param name="esp_port">8888</param>
   </hardware>
   ...
 </ros2_control>
@@ -276,7 +287,7 @@ Both elbow-up and elbow-down configurations are supported.
 | `shoulder_joint` | −90° (−1.57 rad) | +90° (+1.57 rad) |
 | `elbow_joint` | −120° (−2.094 rad) | +120° (+2.094 rad) |
 
-Limits are enforced in both the URDF and the ESP8266 firmware (`clamp()` function). MoveIt also respects them via `joint_limits.yaml` in `arm_moveit_conf_pkg`.
+Limits are enforced in both the URDF and the ESP32 firmware (`clamp()` function). MoveIt also respects them via `joint_limits.yaml` in `arm_moveit_conf_pkg`.
 
 ---
 

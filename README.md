@@ -1,6 +1,6 @@
 # arm_system — 3-DOF Robotic Arm Workspace
 
-A ROS 2 Jazzy workspace for a **3-DOF robotic arm** controlled over serial (USB or WiFi) via an ESP8266 microcontroller. The system supports Gazebo Harmonic simulation, MoveIt 2 motion planning, real hardware execution, and live forward/inverse kinematics.
+A ROS 2 Jazzy workspace for a **3-DOF robotic arm** controlled over serial (USB or WiFi) via an ESP32 microcontroller. The system supports Gazebo Harmonic simulation, MoveIt 2 motion planning, real hardware execution, and live forward/inverse kinematics.
 
 ---
 
@@ -10,8 +10,8 @@ A ROS 2 Jazzy workspace for a **3-DOF robotic arm** controlled over serial (USB 
 arm_system/
 ├── robotic_arm_control/       # URDF, meshes, kinematics scripts, Gazebo launch
 ├── arm_moveit_conf_pkg/       # MoveIt 2 config, real hardware launch
-├── arm_hardware_interface/    # ros2_control plugin (serial ↔ ESP8266)
-└── arm_esp_controller/        # ESP8266 firmware (PlatformIO project)
+├── arm_hardware_interface/    # ros2_control plugin (serial ↔ ESP32)
+└── arm_esp_controller/        # ESP32 firmware (PlatformIO project)
 ```
 
 ---
@@ -23,20 +23,20 @@ arm_system/
 | `robotic_arm_control` | Robot model (URDF + STL meshes), FK/IK Python scripts, Gazebo simulation launch |
 | `arm_moveit_conf_pkg` | MoveIt 2 configuration (SRDF, kinematics, planners), real hardware launch file |
 | `arm_hardware_interface` | `ros2_control` hardware plugin — opens serial port, sends `CMD`, reads `STATE` |
-| `arm_esp_controller` | ESP8266 firmware — parses `CMD`, clamps joint limits, streams `STATE` back |
+| `arm_esp_controller` | ESP32 firmware — parses `CMD`, clamps joint limits, controls servos, streams `STATE` back |
 
 ---
 
 ## Communication Protocol
 
-All communication between the ROS side and the ESP8266 uses plain ASCII over a serial link (USB-UART at 115200 baud):
+All communication between the ROS side and the ESP32 uses plain ASCII over a serial link (USB-UART at 115200 baud):
 
 ```
 ROS → ESP:   CMD <base> <shoulder> <elbow>\n        (radians, 6 decimal places)
 ESP → ROS:   STATE <base> <shoulder> <elbow>\n     (radians, 4 decimal places)
 ```
 
-The ESP only begins streaming `STATE` after it receives the first valid `CMD`. Before that, the serial line is silent — this is correct behaviour, not an error.
+The ESP only begins streaming `STATE` after it receives the first valid `CMD`. Before that, the serial line is silent - this is the intended behaviour.
 
 ---
 
@@ -81,7 +81,7 @@ ros2 launch arm_moveit_conf_pkg move_group.launch.py
 ros2 launch arm_moveit_conf_pkg moveit_rviz.launch.py
 ```
 
-### Mode 3 — Real hardware (ESP8266 over USB)
+### Mode 3 — Real hardware (ESP32 over USB)
 
 Requires `arm_hardware_interface/ArmHardwareInterface` plugin active in URDF.
 
@@ -89,6 +89,14 @@ Requires `arm_hardware_interface/ArmHardwareInterface` plugin active in URDF.
 # Flash ESP first (see arm_esp_controller/README.md)
 sudo chmod 666 /dev/ttyUSB0
 ros2 launch arm_moveit_conf_pkg real_arm.launch.py
+```
+
+### Mode 4 - Real hardware (ESP32 over Wifi)
+
+Requires `arm_hardware_interface/ArmHardwareInterface` plugin active in URDF.
+```bash
+# Replace ***.***.*.** with esp's wifi ip address
+ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=wifi esp_ip:=***.***.*.**
 ```
 
 ### FK / IK tools (any mode with /joint_states running)
@@ -129,9 +137,9 @@ The URDF contains three `<ros2_control>` / `<gazebo>` blocks. Only one hardware 
 
 ## To-Do
 
+- [✓] **WiFi adaptation** — replace serial transport with TCP socket in `arm_hardware_interface`; add matching WiFi TCP server firmware to `arm_esp_controller`; update URDF params from `serial_port`/`baud_rate` to `esp_ip`/`esp_port`
+- [✓] **Real servo testing** — connect physical servo motors to ESP32 PWM outputs; validate that commanded joint angles produce correct physical motion; tune scaling between radians and servo pulse widths; verify joint limit clamping prevents mechanical over-travel
 - [ ] **Launch sequence hardening** — handle graceful failure when ESP is not connected at launch time; add a hardware-check node that verifies `/dev/ttyUSB0` exists and is readable before `ros2_control_node` starts, and falls back to mock mode automatically if it is absent
-- [ ] **WiFi adaptation** — replace serial transport with TCP socket in `arm_hardware_interface`; add matching WiFi TCP server firmware to `arm_esp_controller`; update URDF params from `serial_port`/`baud_rate` to `esp_ip`/`esp_port`; add `TCP_NODELAY` to eliminate Nagle-algorithm latency at 100 Hz
-- [ ] **Real servo testing** — connect physical servo motors to ESP8266 PWM outputs; validate that commanded joint angles produce correct physical motion; tune scaling between radians and servo pulse widths; verify joint limit clamping prevents mechanical over-travel
 
 ---
 

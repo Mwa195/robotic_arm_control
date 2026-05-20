@@ -1,6 +1,6 @@
 # arm_moveit_conf_pkg
 
-A MoveIt 2 configuration package for the **3-DOF robotic arm** defined in `robotic_arm_control`. Provides motion planning, collision avoidance, IK solving, and trajectory execution via `ros2_control` — for both mock/demo mode and real ESP8266 hardware.
+A MoveIt 2 configuration package for the **3-DOF robotic arm** defined in `robotic_arm_control`. Provides motion planning, collision avoidance, IK solving, and trajectory execution via `ros2_control` — for demo mode, Gazebo simulation, and real ESP32 hardware over **serial (USB) or WiFi**.
 
 ---
 
@@ -13,13 +13,14 @@ A MoveIt 2 configuration package for the **3-DOF robotic arm** defined in `robot
 - [Usage](#usage)
   - [Demo Mode](#1-demo-mode-no-gazebo-no-hardware)
   - [With Gazebo Simulation](#2-with-gazebo-simulation)
-  - [Real Hardware](#3-real-hardware-esp8266-over-usb)
-  - [Setting Goals in RViz](#4-setting-goals-in-rviz)
-  - [Controlling Execution Speed](#5-controlling-execution-speed)
-  - [Inspecting a Planned Trajectory](#6-inspecting-a-planned-trajectory)
+  - [Real Hardware — Serial](#3-real-hardware-serial-usb)
+  - [Real Hardware — WiFi](#4-real-hardware-wifi)
+  - [Setting Goals in RViz](#5-setting-goals-in-rviz)
+  - [Controlling Execution Speed](#6-controlling-execution-speed)
+  - [Inspecting a Planned Trajectory](#7-inspecting-a-planned-trajectory)
 - [Launch Files](#launch-files)
 - [Configuration Files](#configuration-files)
-- [Known Fixes Applied](#known-fixes-applied)
+- [Known Fixes Applied and Known Issues](#known-fixes-applied-and-known-issues)
 
 ---
 
@@ -33,7 +34,7 @@ A MoveIt 2 configuration package for the **3-DOF robotic arm** defined in `robot
 - `ros2_control` controller configuration at 100 Hz (real hardware) and 50 Hz (Gazebo)
 - MoveIt controller interface linking `move_group` to `arm_controller` via `FollowJointTrajectory`
 - RViz configuration with the MoveIt Motion Planning plugin pre-loaded
-- `real_arm.launch.py` — real hardware launch with mixed timer/event sequencing (see Known Issues)
+- `real_arm.launch.py` — real hardware launch with selectable serial/WiFi transport and correct controller sequencing
 
 ---
 
@@ -50,7 +51,7 @@ arm_moveit_conf_pkg/
 │   ├── pilz_cartesian_limits.yaml   # Cartesian velocity limits for Pilz planner
 │   └── ros2_controllers.yaml        # Controller manager config (100 Hz, real hardware)
 ├── launch/
-│   ├── real_arm.launch.py           # Real hardware launch (timer + OnProcessExit hybrid)
+│   ├── real_arm.launch.py           # Real hardware launch — serial or WiFi selectable
 │   ├── demo.launch.py               # Mock hardware — MoveIt + RViz, no physical arm
 │   ├── move_group.launch.py         # move_group node only
 │   ├── moveit_rviz.launch.py        # RViz only (connect to existing move_group)
@@ -116,6 +117,8 @@ You can start planning now!
 
 before interacting with RViz.
 
+---
+
 ### 2. With Gazebo Simulation
 
 Launch Gazebo from `robotic_arm_control` first, then bring up `move_group` and RViz:
@@ -133,34 +136,79 @@ ros2 launch arm_moveit_conf_pkg moveit_rviz.launch.py
 
 > Do not run `demo.launch.py` alongside Gazebo — they use conflicting hardware plugins.
 
-### 3. Real Hardware (ESP8266 over USB)
+---
 
-Requires `arm_hardware_interface/ArmHardwareInterface` active in the URDF and the ESP8266 flashed and connected.
+### 3. Real Hardware — Serial (USB)
+
+Requires `arm_hardware_interface/ArmHardwareInterface` active in the URDF and the ESP32 flashed and connected via USB.
 
 ```bash
 sudo chmod 666 /dev/ttyUSB0
 ros2 launch arm_moveit_conf_pkg real_arm.launch.py
 ```
 
-**Startup sequence:**
+Serial is the default transport — no extra arguments needed. To use a different port:
 
-```
-ros2_control_node starts
-    └─ TimerAction(3s) → joint_state_broadcaster spawner
-                             └─ OnProcessExit → arm_controller spawner
-    └─ TimerAction(5s) → move_group
-    └─ TimerAction(6s) → rviz2
+```bash
+ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=serial serial_port:=/dev/ttyUSB1
 ```
 
-`arm_controller` is correctly chained off `joint_state_broadcaster` via `OnProcessExit`. However, `move_group` and `rviz2` start on fixed timers independent of whether `arm_controller` has become active — on a slow machine or with serial port init delay this can cause `move_group` to see `time=0.000000` on `/joint_states` and abort execution with `"couldn't receive full current joint state within 1s"`. See [Known Issues](#known-issues) for the planned fix.
-
-**Important serial monitor warning:** Never open the Arduino serial monitor while ROS is connected — opening it asserts DTR which resets the ESP mid-session. To inspect the raw STATE stream without interfering:
+**Important:** Never open the Arduino serial monitor while ROS is connected — it asserts DTR which resets the ESP mid-session. To inspect the raw STATE stream without interfering:
 
 ```bash
 stty -F /dev/ttyUSB0 raw 115200 && cat /dev/ttyUSB0
 ```
 
-### 4. Setting Goals in RViz
+---
+
+### 4. Real Hardware — WiFi
+
+Requires the ESP32 flashed with the WiFi firmware and connected to the same network as your laptop.
+
+```bash
+ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=wifi esp_ip:=192.168.1.105
+```
+
+To use a non-default port:
+
+```bash
+ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=wifi esp_ip:=192.168.1.105 esp_port:=9999
+```
+
+**Before launching, verify the ESP is reachable:**
+
+```bash
+ping 192.168.1.105
+nc -zv 192.168.1.105 8888
+```
+
+To find the ESP's IP, check your router's DHCP table. Assigning a static DHCP lease by MAC address is recommended so the IP never changes between sessions.
+
+> WiFi latency at 100 Hz: USB serial has near-zero latency. WiFi on a 2.4 GHz network can introduce 5–20 ms jitter, which may trigger occasional `"No complete STATE line this cycle"` warnings and slightly noisier velocity estimates. `TCP_NODELAY` is already set in the hardware interface to mitigate this. If jitter is consistently bad, drop the control rate to 50 Hz in `ros2_controllers.yaml`.
+
+---
+
+### Startup Sequence (both transports)
+
+```
+immediately:  robot_state_publisher   — publishes TF from URDF
+              ros2_control_node       — loads ArmHardwareInterface, opens serial or TCP
+                   │
+after 3s:     joint_state_broadcaster — reads position_state_[] → publishes /joint_states
+                   │ (on exit)
+              arm_controller          — JointTrajectoryController, receives MoveIt goals
+
+after 5s:     move_group              — MoveIt planning server
+after 6s:     rviz2                   — visualization + interactive planning
+```
+
+`arm_controller` waits for `joint_state_broadcaster` to finish spawning via `OnProcessExit` — so `/joint_states` is guaranteed to be publishing before the trajectory controller comes online. `move_group` and `rviz2` start on fixed timers after that.
+
+If you see `"Could not contact service /controller_manager"`, raise the `joint_state_broadcaster` timer from `3.0` to `5.0` in `real_arm.launch.py`.
+
+---
+
+### 5. Setting Goals in RViz
 
 #### Method A — Joints Tab (most reliable)
 
@@ -185,7 +233,9 @@ Use the **Goal State** dropdown in the Planning tab to select `home` (all joints
 | **Plan & Execute** | Plan then immediately execute |
 | **Stop** | Abort execution mid-motion |
 
-### 5. Controlling Execution Speed
+---
+
+### 6. Controlling Execution Speed
 
 In the Planning tab before clicking Plan:
 
@@ -200,7 +250,9 @@ default_velocity_scaling_factor: 0.5
 default_acceleration_scaling_factor: 0.5
 ```
 
-### 6. Inspecting a Planned Trajectory
+---
+
+### 7. Inspecting a Planned Trajectory
 
 After clicking **Plan**, scrub frame-by-frame before executing:
 
@@ -214,12 +266,20 @@ RViz menu → Panels → Trajectory - Trajectory Slider
 
 ### `real_arm.launch.py`
 
-The primary launch file for real hardware. Key design decisions:
+The primary launch file for real hardware. Accepts four launch arguments:
 
-- `joint_state_broadcaster` is correctly sequenced via `OnProcessExit` off `ros2_control_node`'s 3 s timer. `arm_controller` is then chained via `OnProcessExit` off `joint_state_broadcaster` — so by the time `arm_controller` starts, `/joint_states` is guaranteed to be publishing.
-- `move_group` and `rviz2` start on fixed `TimerAction` delays (5 s and 6 s respectively), independent of controller state. This is a known limitation — see [Known Issues](#known-issues).
-- `ros2_control_node` will fail and exit if `/dev/ttyUSB0` is not available — this is intentional. Do not launch in real hardware mode without the ESP connected.
-- If you see `"Could not contact service /controller_manager"`, raise the `joint_state_broadcaster` timer from `3.0` to `5.0`.
+| Argument | Default | Description |
+|---|---|---|
+| `transport` | `serial` | `"serial"` for USB, `"wifi"` for TCP |
+| `serial_port` | `/dev/ttyUSB0` | Serial device (used when `transport=serial`) |
+| `esp_ip` | `192.168.1.105` | ESP IP address (used when `transport=wifi`) |
+| `esp_port` | `8888` | ESP TCP port (used when `transport=wifi`) |
+
+At launch time, the file patches the URDF string in memory — replacing the four `<param>` values with whatever was passed on the command line — before handing it to `ros2_control_node` and `robot_state_publisher`. The URDF file on disk is never modified.
+
+This means the transport selection is entirely a launch-time decision. No recompilation, no URDF editing, no separate launch files for serial vs WiFi — one command with one argument.
+
+`ros2_control_node` will fail and exit if the connection cannot be established — serial port not found, or ESP unreachable over WiFi. This is intentional. Do not launch in real hardware mode without the ESP connected and reachable.
 
 ### `demo.launch.py`
 
@@ -305,13 +365,13 @@ Controller manager at 100 Hz for real hardware. Includes `allow_nonzero_velocity
 
 **Fix:** Added the full `arm_controller` block with `command_interfaces`, `state_interfaces`, and `joints`.
 
-### Known Issue — `real_arm.launch.py` Timer-Based `move_group` Start
+### Known Issue — `move_group` and `rviz2` Start on Fixed Timers
 
-**Problem:** `move_group` starts on a fixed 5 s `TimerAction` independent of whether `arm_controller` has reached `active` state. MoveIt's trajectory validator checks the `/joint_states` timestamp on execution — if `move_group` starts before controllers are fully active, it sees `time=0.000000` and aborts with `"couldn't receive full current joint state within 1s"`.
+**Problem:** `move_group` starts on a fixed 5 s `TimerAction` and `rviz2` on 6 s, independent of whether `arm_controller` has reached `active` state. On a slow machine or with a slow WiFi connection, `arm_controller` may not be active yet when `move_group` starts — causing it to see `time=0.000000` on `/joint_states` and abort execution with `"couldn't receive full current joint state within 1s"`.
 
-**Workaround:** On most machines the 5 s timer is enough margin. If you consistently hit this abort, raise `period=5.0` to `period=8.0` in `real_arm.launch.py`.
+**Workaround:** On most machines the 5 s timer is enough margin. If you consistently hit this abort, raise `period=5.0` to `period=8.0` in `real_arm.launch.py`. With WiFi transport this is slightly more likely than with serial due to connection setup time.
 
-**Planned fix:** Replace the `TimerAction` for `move_group` and `rviz2` with `OnProcessExit` handlers chained off `arm_controller_spawner`, so each stage is guaranteed to start only after the previous controller reaches `active`. This is tracked in the workspace to-do list.
+**Planned fix:** Replace the `TimerAction` for `move_group` and `rviz2` with `OnProcessExit` handlers chained off `arm_controller_spawner`, so each stage is guaranteed to start only after the previous controller reaches `active`.
 
 ---
 
