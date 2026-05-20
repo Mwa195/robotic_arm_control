@@ -241,9 +241,31 @@
   <ros2_control name="ArmSystem" type="system">
   <hardware>
     <plugin>arm_hardware_interface/ArmHardwareInterface</plugin>
+    <!-- Transport selection: "serial" or "wifi"
+         Override at launch time:
+           ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=wifi
+           ros2 launch arm_moveit_conf_pkg real_arm.launch.py transport:=serial -->
+    <param name="transport">serial</param>
+    <!-- Serial transport params -->
     <param name="serial_port">/dev/ttyUSB0</param>
     <param name="baud_rate">115200</param>
+    <!-- WiFi transport params (used when transport=wifi) -->
+    <param name="esp_ip">192.168.1.105</param>
+    <param name="esp_port">8888</param>
   </hardware>
+
+
+  <!-- ros2_control for Gazebo Harmonic --> <!-- Uncomment if running gazebo simulation-->
+  <!-- <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware> -->
+  
+  <!-- ros2_control for Demo in moveit --> <!-- Uncomment if running moveit in Rviz simulation-->
+  <!-- <ros2_control name="DemoSimSystem" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware> -->
 
   
     
